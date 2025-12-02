@@ -1,8 +1,9 @@
 package code;
-
 public class Main {
     public static void main(String[] args) {
-        Board board = new Board();
-        board.play();
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            GameFrame frame = new GameFrame();
+            frame.setVisible(true);
+        });
     }
 }
