@@ -1,3 +1,4 @@
+package code;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -10,11 +11,7 @@ public class Board {
     public Board() {
         this.r = new Random();
         this.board = new int[4][4];
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
-                board[i][j]=0;
-            }
-        }
+        clearBoard();
     }
 
     public void play() {
@@ -84,7 +81,7 @@ public class Board {
         }
     }
 
-    private void moveUp() {
+    public void moveUp() {
         for (int col = 0; col < BOARD_SIZE; col++) {
             for (int row = 0; row < BOARD_SIZE - 1; row++) {
                 if (board[row][col] == 0) {
@@ -111,7 +108,7 @@ public class Board {
         generateRandomTile();
     }
 
-    private void moveLeft(){
+    public void moveLeft(){
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = 0; col < BOARD_SIZE; col++) {
                 if(board[row][col]==0){
@@ -138,7 +135,7 @@ public class Board {
         generateRandomTile();
     }
 
-    private void moveRight(){
+    public void moveRight(){
         for (int row = 0; row < BOARD_SIZE; row++) {
             for (int col = BOARD_SIZE -1; col >= 0; col--) {
                 if(board[row][col]==0){
@@ -165,7 +162,7 @@ public class Board {
         generateRandomTile();
     }
 
-    private void moveDown(){
+    public void moveDown(){
         for (int col = 0; col < BOARD_SIZE; col++) {
             for (int row = BOARD_SIZE -1; row >= 0; row--) {
                 if(board[row][col]==0){
@@ -195,8 +192,7 @@ public class Board {
     private void generateRandomTile(){
         ArrayList<Integer[]> empty = emptyCells();
         if (empty.isEmpty()) {
-            System.out.println("Game Over! You Lose!");
-            System.exit(0);
+            return;
         }
         Integer[] index = empty.get(r.nextInt(empty.size()));
         board[index[0]][index[1]] = (r.nextInt(2) + 1) * 2;
@@ -212,5 +208,27 @@ public class Board {
             }
         }
         return empty;
+    }
+
+    public int getValueAt(int row, int col) {
+        return board[row][col];
+    }
+
+    public boolean isGameOver() {
+        return emptyCells().isEmpty();
+    }
+
+    public void startNewGame() {
+        clearBoard();
+        generateRandomTile();
+        generateRandomTile();
+    }
+
+    private void clearBoard() {
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                board[i][j] = 0;
+            }
+        }
     }
 }
