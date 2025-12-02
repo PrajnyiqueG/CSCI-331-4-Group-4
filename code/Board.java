@@ -215,4 +215,18 @@ public class Board {
         }
         return empty;
     }
+
+    public String AI1() {
+        // Placeholder for AI strategy 1
+        return "AI1 not implemented yet.";
+    }
+
+    public String AI2() {
+        // Placeholder for AI strategy 2
+        return "AI2 not implemented yet.";
+    }
+
+    public void exit() {
+        return;
+    }
 }
