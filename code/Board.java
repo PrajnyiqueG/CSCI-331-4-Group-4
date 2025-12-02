@@ -339,10 +339,7 @@ public class Board {
             return value;
         }
     }
-
-    // ------------------ Helper functions ------------------
-
-    // Clone a grid (deep copy)
+    
     private int[][] cloneGrid(int[][] g) {
         int[][] copy = new int[BOARD_SIZE][BOARD_SIZE];
         for (int i = 0; i < BOARD_SIZE; i++) {
@@ -351,8 +348,6 @@ public class Board {
         return copy;
     }
 
-    // Mutates grid g in place performing move direction ("W","A","S","D"), WITHOUT generating random tiles.
-    // Returns true if grid changed (i.e., move valid), false otherwise.
     private boolean moveGridInPlace(int[][] g, String dir) {
         boolean changed = false;
         switch (dir) {
@@ -468,14 +463,9 @@ public class Board {
                 return false;
         }
 
-        // Additional: check if the move produced changes in content compared to initial grid.
-        // Because our code sets changed = true when we shift/merge, but sometimes merges may
-        // not be detected; to be safe, we can check equality with a pre-move clone.
-        // However we already set changed whenever we assign; keep it simple.
         return changed;
     }
 
-    // Evaluate a grid using Option A: sum of all tiles
     private double evaluateGrid(int[][] g) {
         double sum = 0.0;
         for (int i = 0; i < BOARD_SIZE; i++) {
@@ -486,15 +476,12 @@ public class Board {
         return sum;
     }
 
-    // Check if any moves possible on grid (game over condition)
     private boolean isGameOverGrid(int[][] g) {
-        // if any empty cell -> not over
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
                 if (g[i][j] == 0) return false;
             }
         }
-        // check if any merges possible horizontally or vertically
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE - 1; j++) {
                 if (g[i][j] == g[i][j + 1]) return false;
@@ -506,19 +493,5 @@ public class Board {
             }
         }
         return true;
-    }
-
-    // ---------------- placeholders from original class (kept for compatibility) ----------------
-
-    public String ABprunePlaceholder() {
-        return null;
-    }
-
-    public String MiniMaxPlaceholder() {
-        return null;
-    }
-
-    public void exit() {
-
     }
 }
