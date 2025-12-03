@@ -430,11 +430,11 @@ public class Board {
         alphaBetaTime = (end - start);
     }
 
-    public long getMinimaxTotalTime() {
+    public long getMinimaxTime() {
         return minimaxTime;
     }
 
-    public long getAlphaBetaTotalTime() {
+    public long getAlphaBetaTime() {
         return alphaBetaTime;
     }
 }
