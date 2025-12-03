@@ -47,7 +47,25 @@ public class GameFrame extends JFrame {
             requestFocusInWindow();
         });
 
+        JButton minimaxButton = new JButton("AI Move (Minimax)");
+        minimaxButton.addActionListener(e -> {
+            board.MiniMax();
+            boardPanel.repaint();
+            checkGameOver();
+            requestFocusInWindow();
+        });
+
+        JButton alphaBetaButton = new JButton("AI Move (Alpha-Beta)");
+        alphaBetaButton.addActionListener(e -> {
+            board.ABprune();
+            boardPanel.repaint();
+            checkGameOver();
+            requestFocusInWindow();
+        });
+
         panel.add(newGameButton);
+        panel.add(minimaxButton);
+        panel.add(alphaBetaButton);
         return panel;
     }
 
@@ -84,6 +102,10 @@ public class GameFrame extends JFrame {
 
         boardPanel.repaint();
 
+        checkGameOver();
+    }
+
+    private void checkGameOver() {
         if (board.isGameOver()) {
             JOptionPane.showMessageDialog(this, "Game Over");
         }
