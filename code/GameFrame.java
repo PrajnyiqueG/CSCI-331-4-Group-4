@@ -5,23 +5,36 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+/**
+ * GameFrame is the main GUI window for the 2048 AI project.
+ * It displays the game board, score, highest tile, AI timings, and provides controls for gameplay.
+ */
 public class GameFrame extends JFrame {
 
+    /** The game logic board */
     private Board board;
+
+    /** Panel to display the board visually */
     private BoardPanel boardPanel;
 
+    /** Labels for displaying score, highest tile, AI timings */
     private JLabel scoreLabel;
     private JLabel highestTileLabel;
     private JLabel aiTimingLabel;
     private JLabel totalMinimaxTimeLabel;
     private JLabel totalAlphaBetaTimeLabel;
 
+    /** Total time spent performing Minimax / Alpha-Beta moves */
     private long totalMinimaxTime = 0;
     private long totalAlphaBetaTime = 0;
 
+    /** Minimum window dimensions */
     private final int MIN_WIDTH = 1000;
     private final int MIN_HEIGHT = 650;
 
+    /**
+     * Constructor: Initializes the game frame, sets up UI components and keyboard controls.
+     */
     public GameFrame() {
         board = new Board();
         board.startNewGame();
@@ -29,17 +42,17 @@ public class GameFrame extends JFrame {
         boardPanel = new BoardPanel(board);
         boardPanel.setPreferredSize(new Dimension(400, 400));
 
-        // Labels
+        // Initialize labels
         scoreLabel = createLabel("Score: 0", 24, true);
         highestTileLabel = createLabel("Highest Tile: 0", 20, true);
         aiTimingLabel = createLabel("Minimax: 0 ms | Alpha-Beta: 0 ms", 16, false);
         totalMinimaxTimeLabel = createLabel("Total Minimax Time: 0 ms", 16, false);
         totalAlphaBetaTimeLabel = createLabel("Total Alpha-Beta Time: 0 ms", 16, false);
 
-        // Control panel
+        // Control panel with buttons
         JPanel controlPanel = createControlPanel();
 
-        // Top panel (labels)
+        // Top panel to display labels
         JPanel topPanel = new JPanel(new GridLayout(5, 1));
         topPanel.add(scoreLabel);
         topPanel.add(highestTileLabel);
@@ -47,7 +60,7 @@ public class GameFrame extends JFrame {
         topPanel.add(totalMinimaxTimeLabel);
         topPanel.add(totalAlphaBetaTimeLabel);
 
-        // Layout
+        // Frame layout
         setLayout(new BorderLayout());
         add(topPanel, BorderLayout.NORTH);
         add(boardPanel, BorderLayout.CENTER);
@@ -59,7 +72,7 @@ public class GameFrame extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Keyboard
+        // Keyboard controls
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -73,6 +86,13 @@ public class GameFrame extends JFrame {
         updateUI();
     }
 
+    /**
+     * Creates a JLabel with specified text, font size, and bold style.
+     * @param text Text to display
+     * @param fontSize Font size
+     * @param bold Whether font is bold
+     * @return Configured JLabel
+     */
     private JLabel createLabel(String text, int fontSize, boolean bold) {
         JLabel label = new JLabel(text, SwingConstants.CENTER);
         label.setFont(new Font("Arial", bold ? Font.BOLD : Font.PLAIN, fontSize));
@@ -80,6 +100,10 @@ public class GameFrame extends JFrame {
         return label;
     }
 
+    /**
+     * Creates the control panel with buttons for new game and AI moves.
+     * @return JPanel containing buttons
+     */
     private JPanel createControlPanel() {
         JPanel panel = new JPanel();
 
@@ -97,9 +121,8 @@ public class GameFrame extends JFrame {
             long start = System.nanoTime();
             board.MiniMax();
             long end = System.nanoTime();
-            long duration = end - start;
-            totalMinimaxTime += duration;
-            updateUI(duration, -1);
+            totalMinimaxTime += (end - start);
+            updateUI(end - start, -1);
             requestFocusInWindow();
         });
 
@@ -108,9 +131,8 @@ public class GameFrame extends JFrame {
             long start = System.nanoTime();
             board.ABprune();
             long end = System.nanoTime();
-            long duration = end - start;
-            totalAlphaBetaTime += duration;
-            updateUI(-1, duration);
+            totalAlphaBetaTime += (end - start);
+            updateUI(-1, end - start);
             requestFocusInWindow();
         });
 
@@ -119,9 +141,8 @@ public class GameFrame extends JFrame {
             long start = System.nanoTime();
             board.m10MiniMax();
             long end = System.nanoTime();
-            long duration = end - start;
-            totalMinimaxTime += duration;
-            updateUI(duration, -1);
+            totalMinimaxTime += (end - start);
+            updateUI(end - start, -1);
             requestFocusInWindow();
         });
 
@@ -130,9 +151,8 @@ public class GameFrame extends JFrame {
             long start = System.nanoTime();
             board.m10ABprune();
             long end = System.nanoTime();
-            long duration = end - start;
-            totalAlphaBetaTime += duration;
-            updateUI(-1, duration);
+            totalAlphaBetaTime += (end - start);
+            updateUI(-1, end - start);
             requestFocusInWindow();
         });
 
@@ -145,6 +165,10 @@ public class GameFrame extends JFrame {
         return panel;
     }
 
+    /**
+     * Handles arrow/WASD key presses to move tiles.
+     * @param keyCode Key pressed
+     */
     private void handleKeyPress(int keyCode) {
         boolean moved = false;
         switch (keyCode) {
@@ -160,12 +184,20 @@ public class GameFrame extends JFrame {
         if (moved) updateUI();
     }
 
+    /**
+     * Updates UI labels and repaints the board.
+     * No specific AI move time.
+     */
     private void updateUI() {
-        updateUI(-1, -1); // no specific AI move, just refresh all labels
+        updateUI(-1, -1);
     }
 
+    /**
+     * Updates UI labels, including last AI move durations.
+     * @param lastMinimax Duration of last Minimax move (-1 if none)
+     * @param lastAlphaBeta Duration of last Alpha-Beta move (-1 if none)
+     */
     private void updateUI(long lastMinimax, long lastAlphaBeta) {
-        // Score
         int score = 0;
         int highest = 0;
         for (int r = 0; r < 4; r++) {
@@ -178,7 +210,6 @@ public class GameFrame extends JFrame {
         scoreLabel.setText("Score: " + score);
         highestTileLabel.setText("Highest Tile: " + highest);
 
-        // Current AI move time
         if (lastMinimax >= 0) {
             aiTimingLabel.setText("Minimax: " + lastMinimax / 1_000_000 + " ms | Alpha-Beta: 0 ms");
         } else if (lastAlphaBeta >= 0) {
@@ -187,7 +218,6 @@ public class GameFrame extends JFrame {
             aiTimingLabel.setText("Minimax: 0 ms | Alpha-Beta: 0 ms");
         }
 
-        // Total AI time
         totalMinimaxTimeLabel.setText("Total Minimax Time: " + totalMinimaxTime / 1_000_000 + " ms");
         totalAlphaBetaTimeLabel.setText("Total Alpha-Beta Time: " + totalAlphaBetaTime / 1_000_000 + " ms");
 
@@ -195,6 +225,9 @@ public class GameFrame extends JFrame {
         checkGameOver();
     }
 
+    /**
+     * Checks if the game is over and displays a message dialog if so.
+     */
     private void checkGameOver() {
         if (board.isGameOver()) {
             JOptionPane.showMessageDialog(this,
@@ -203,6 +236,7 @@ public class GameFrame extends JFrame {
         }
     }
 
+    /** Calculates the current score by summing all tile values */
     private int calculateScore() {
         int score = 0;
         for (int r = 0; r < 4; r++)
@@ -211,6 +245,7 @@ public class GameFrame extends JFrame {
         return score;
     }
 
+    /** Returns the highest tile currently on the board */
     private int getHighestTile() {
         int highest = 0;
         for (int r = 0; r < 4; r++)
@@ -220,6 +255,10 @@ public class GameFrame extends JFrame {
         return highest;
     }
 
+    /**
+     * Main method: Launches the game GUI.
+     * @param args Command-line arguments
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             GameFrame frame = new GameFrame();
