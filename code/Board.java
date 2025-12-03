@@ -1,7 +1,6 @@
 package code;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Scanner;
 
 public class Board {
     private static final int BOARD_SIZE = 4;
@@ -85,9 +84,8 @@ public class Board {
 
         for (String m : moves) {
             int[][] clone = cloneGrid(board);
-            boolean moved = moveGridInPlace(clone, m); // simulate player move (no random tile)
+            boolean moved = moveGridInPlace(clone, m);
             if (!moved) continue;
-            // Now it's adversary turn (minimizer) at depth-1
             double value = minimax(clone, SEARCH_DEPTH - 1, false);
             if (value > bestValue) {
                 bestValue = value;
@@ -95,7 +93,6 @@ public class Board {
             }
         }
 
-        // Apply chosen move to real board (this will generate a random tile via moveX methods)
         if (bestMove != null) {
             switch (bestMove) {
                 case "W":
@@ -135,11 +132,9 @@ public class Board {
                 double val = minimax(child, depth - 1, false);
                 if (val > best) best = val;
             }
-            // If no valid moves, return evaluation
             if (best == Double.NEGATIVE_INFINITY) return evaluateGrid(g);
             return best;
         } else {
-            // adversary: place a 2 or 4 in any empty cell to minimize player's evaluation
             ArrayList<int[]> empty = emptyCellsGrid(g);
             if (empty.isEmpty()) {
                 return evaluateGrid(g);
