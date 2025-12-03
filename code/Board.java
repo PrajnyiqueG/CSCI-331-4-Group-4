@@ -1,97 +1,19 @@
 package code;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Scanner;
 
 public class Board {
     private static final int BOARD_SIZE = 4;
     private int[][] board;
     private Random r;
-    private static final int SEARCH_DEPTH = 7; // change to 8 if you want deeper search (slower)
+    private static final int SEARCH_DEPTH = 7;
+    private long minimaxTime = 0;
+    private long alphaBetaTime = 0;
 
     public Board() {
         this.r = new Random();
         this.board = new int[BOARD_SIZE][BOARD_SIZE];
         clearBoard();
-    }
-
-    public void play() {
-        generateRandomTile();
-        generateRandomTile();
-        display();
-        System.out.println();
-
-        Scanner scanner = new Scanner(System.in);
-        String input = "";
-        while (!input.equals("Q")) {
-            input = scanner.next().toUpperCase();
-            switch (input) {
-                case "W":
-                    moveUp();
-                    break;
-                case "A":
-                    moveLeft();
-                    break;
-                case "S":
-                    moveDown();
-                    break;
-                case "D":
-                    moveRight();
-                    break;
-                case "Q":
-                    System.exit(0);
-                    break;
-                case "AI1":
-                    // Plain Minimax (no pruning)
-                    String move1 = MiniMax();
-                    System.out.println("MiniMax chose: " + move1);
-                    break;
-                case "AI2":
-                    // Minimax with alpha-beta pruning
-                    String move2 = ABprune();
-                    System.out.println("ABprune chose: " + move2);
-                    break;
-                default:
-                    System.out.println("Invalid input. Please try again.");
-            }
-            display();
-
-            System.out.println();
-            System.out.println();
-
-            if (hasWon()) {
-                System.out.println("Congrats! You won!");
-                scanner.close();
-                break;
-            }
-            if (isGameOver()) {
-                System.out.println("Game over! No moves left.");
-                scanner.close();
-                break;
-            }
-        }
-    }
-
-    private boolean hasWon() {
-        for (int row = 0; row < BOARD_SIZE; row++) {
-            for (int col = 0; col < BOARD_SIZE; col++) {
-                if (board[row][col] == 2048) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private void display() {
-        System.out.println("-----------------------------");
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
-                System.out.printf("| %-4d ", board[i][j]);
-            }
-            System.out.println("|");
-            System.out.println("-----------------------------");
-        }
     }
 
     public void moveUp() {
@@ -110,7 +32,6 @@ public class Board {
         if (moveGridInPlace(board, "S")) generateRandomTile();
     }
 
-    // Note: generateRandomTile still used only for real moves (not for simulation)
     private void generateRandomTile() {
         ArrayList<int[]> empty = emptyCellsGrid(board);
         if (empty.isEmpty()) {
@@ -118,10 +39,6 @@ public class Board {
         }
         int[] index = empty.get(r.nextInt(empty.size()));
         board[index[0]][index[1]] = (r.nextInt(2) + 1) * 2;
-    }
-
-    private ArrayList<int[]> emptyCells() {
-        return emptyCellsGrid(this.board);
     }
 
     private ArrayList<int[]> emptyCellsGrid(int[][] g) {
@@ -169,9 +86,8 @@ public class Board {
 
         for (String m : moves) {
             int[][] clone = cloneGrid(board);
-            boolean moved = moveGridInPlace(clone, m); // simulate player move (no random tile)
+            boolean moved = moveGridInPlace(clone, m);
             if (!moved) continue;
-            // Now it's adversary turn (minimizer) at depth-1
             double value = minimax(clone, SEARCH_DEPTH - 1, false);
             if (value > bestValue) {
                 bestValue = value;
@@ -179,7 +95,6 @@ public class Board {
             }
         }
 
-        // Apply chosen move to real board (this will generate a random tile via moveX methods)
         if (bestMove != null) {
             switch (bestMove) {
                 case "W":
@@ -219,11 +134,9 @@ public class Board {
                 double val = minimax(child, depth - 1, false);
                 if (val > best) best = val;
             }
-            // If no valid moves, return evaluation
             if (best == Double.NEGATIVE_INFINITY) return evaluateGrid(g);
             return best;
         } else {
-            // adversary: place a 2 or 4 in any empty cell to minimize player's evaluation
             ArrayList<int[]> empty = emptyCellsGrid(g);
             if (empty.isEmpty()) {
                 return evaluateGrid(g);
@@ -339,7 +252,7 @@ public class Board {
             return value;
         }
     }
-    
+
     private int[][] cloneGrid(int[][] g) {
         int[][] copy = new int[BOARD_SIZE][BOARD_SIZE];
         for (int i = 0; i < BOARD_SIZE; i++) {
@@ -466,7 +379,7 @@ public class Board {
         return changed;
     }
 
-    private double evaluateGrid(int[][] g) {
+    public double evaluateGrid(int[][] g) {
         double sum = 0.0;
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
@@ -493,5 +406,35 @@ public class Board {
             }
         }
         return true;
+    }
+
+    public void m10MiniMax() {
+        long start = System.nanoTime();
+
+        for(int i = 0; i < 10; i++) {
+            MiniMax();
+        }
+
+        long end = System.nanoTime();
+        minimaxTime = (end - start);
+    }
+
+    public void m10ABprune() {
+        long start = System.nanoTime();
+
+        for(int i = 0; i < 10; i++) {
+            ABprune();
+        }
+
+        long end = System.nanoTime();
+        alphaBetaTime = (end - start);
+    }
+
+    public long getMinimaxTime() {
+        return minimaxTime;
+    }
+
+    public long getAlphaBetaTime() {
+        return alphaBetaTime;
     }
 }
