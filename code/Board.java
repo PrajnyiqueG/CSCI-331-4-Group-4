@@ -7,6 +7,8 @@ public class Board {
     private int[][] board;
     private Random r;
     private static final int SEARCH_DEPTH = 7;
+    private long minimaxTotalTime = 0;
+    private long alphaBetaTotalTime = 0;
 
     public Board() {
         this.r = new Random();
@@ -407,14 +409,32 @@ public class Board {
     }
 
     public void m10MiniMax() {
+        long start = System.nanoTime();
+
         for(int i = 0; i < 10; i++) {
             MiniMax();
         }
+
+        long end = System.nanoTime();
+        minimaxTotalTime = (end - start);
     }
 
     public void m10ABprune() {
+        long start = System.nanoTime();
+
         for(int i = 0; i < 10; i++) {
             ABprune();
         }
+
+        long end = System.nanoTime();
+        alphaBetaTotalTime = (end - start);
+    }
+
+    public long getMinimaxTotalTime() {
+        return minimaxTotalTime;
+    }
+
+    public long getAlphaBetaTotalTime() {
+        return alphaBetaTotalTime;
     }
 }
