@@ -19,7 +19,7 @@ public class GameFrame extends JFrame {
     private long totalMinimaxTime = 0;
     private long totalAlphaBetaTime = 0;
 
-    private final int MIN_WIDTH = 700;
+    private final int MIN_WIDTH = 800;
     private final int MIN_HEIGHT = 650;
 
     public GameFrame() {
@@ -114,7 +114,7 @@ public class GameFrame extends JFrame {
             requestFocusInWindow();
         });
 
-        JButton m10minimaxButton = new JButton("m10MiniMax");
+        JButton m10minimaxButton = new JButton("10 Moves (MiniMax)");
         m10minimaxButton.addActionListener(e -> {
             long start = System.nanoTime();
             board.m10MiniMax();
@@ -125,7 +125,7 @@ public class GameFrame extends JFrame {
             requestFocusInWindow();
         });
 
-        JButton m10alphaBetaButton = new JButton("m10AlphaBeta");
+        JButton m10alphaBetaButton = new JButton("10 Moves (AlphaBeta)");
         m10alphaBetaButton.addActionListener(e -> {
             long start = System.nanoTime();
             board.m10ABprune();
