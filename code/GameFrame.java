@@ -9,9 +9,15 @@ public class GameFrame extends JFrame {
 
     private Board board;
     private BoardPanel boardPanel;
+
     private JLabel scoreLabel;
-    private JLabel aiTimingLabel;
     private JLabel highestTileLabel;
+    private JLabel aiTimingLabel;
+    private JLabel totalMinimaxTimeLabel;
+    private JLabel totalAlphaBetaTimeLabel;
+
+    private long totalMinimaxTime = 0;
+    private long totalAlphaBetaTime = 0;
 
     private final int MIN_WIDTH = 700;
     private final int MIN_HEIGHT = 650;
@@ -23,30 +29,25 @@ public class GameFrame extends JFrame {
         boardPanel = new BoardPanel(board);
         boardPanel.setPreferredSize(new Dimension(400, 400));
 
-        // Score label
-        scoreLabel = new JLabel("Score: 0", SwingConstants.CENTER);
-        scoreLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        scoreLabel.setForeground(new Color(0x776E65));
-        
-        highestTileLabel = new JLabel("Highest Tile: 0", SwingConstants.CENTER);
-        highestTileLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        highestTileLabel.setForeground(new Color(0x776E65));
-
-        // AI timing label
-        aiTimingLabel = new JLabel("Minimax: 0 ms | Alpha-Beta: 0 ms", SwingConstants.CENTER);
-        aiTimingLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        aiTimingLabel.setForeground(new Color(0x776E65));
+        // Labels
+        scoreLabel = createLabel("Score: 0", 24, true);
+        highestTileLabel = createLabel("Highest Tile: 0", 20, true);
+        aiTimingLabel = createLabel("Minimax: 0 ms | Alpha-Beta: 0 ms", 16, false);
+        totalMinimaxTimeLabel = createLabel("Total Minimax Time: 0 ms", 16, false);
+        totalAlphaBetaTimeLabel = createLabel("Total Alpha-Beta Time: 0 ms", 16, false);
 
         // Control panel
         JPanel controlPanel = createControlPanel();
 
-        // Top panel (score + AI timing)
-        JPanel topPanel = new JPanel(new GridLayout(3, 1));
+        // Top panel (labels)
+        JPanel topPanel = new JPanel(new GridLayout(5, 1));
         topPanel.add(scoreLabel);
-        topPanel.add(aiTimingLabel);
         topPanel.add(highestTileLabel);
+        topPanel.add(aiTimingLabel);
+        topPanel.add(totalMinimaxTimeLabel);
+        topPanel.add(totalAlphaBetaTimeLabel);
 
-        // Layout setup
+        // Layout
         setLayout(new BorderLayout());
         add(topPanel, BorderLayout.NORTH);
         add(boardPanel, BorderLayout.CENTER);
@@ -58,7 +59,7 @@ public class GameFrame extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Keyboard input
+        // Keyboard
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -72,14 +73,21 @@ public class GameFrame extends JFrame {
         updateUI();
     }
 
+    private JLabel createLabel(String text, int fontSize, boolean bold) {
+        JLabel label = new JLabel(text, SwingConstants.CENTER);
+        label.setFont(new Font("Arial", bold ? Font.BOLD : Font.PLAIN, fontSize));
+        label.setForeground(new Color(0x776E65));
+        return label;
+    }
+
     private JPanel createControlPanel() {
         JPanel panel = new JPanel();
 
         JButton newGameButton = new JButton("New Game");
         newGameButton.addActionListener(e -> {
             board.startNewGame();
-            board.setMinimaxTime(0);    // reset timings
-            board.setAlphaBetaTime(0);
+            totalMinimaxTime = 0;
+            totalAlphaBetaTime = 0;
             updateUI();
             requestFocusInWindow();
         });
@@ -89,8 +97,9 @@ public class GameFrame extends JFrame {
             long start = System.nanoTime();
             board.MiniMax();
             long end = System.nanoTime();
-            board.setMinimaxTime(end - start); // update minimax time
-            updateUI();
+            long duration = end - start;
+            totalMinimaxTime += duration;
+            updateUI(duration, -1);
             requestFocusInWindow();
         });
 
@@ -99,22 +108,31 @@ public class GameFrame extends JFrame {
             long start = System.nanoTime();
             board.ABprune();
             long end = System.nanoTime();
-            board.setAlphaBetaTime(end - start); // update alpha-beta time
-            updateUI();
+            long duration = end - start;
+            totalAlphaBetaTime += duration;
+            updateUI(-1, duration);
             requestFocusInWindow();
         });
 
         JButton m10minimaxButton = new JButton("m10MiniMax");
         m10minimaxButton.addActionListener(e -> {
+            long start = System.nanoTime();
             board.m10MiniMax();
-            updateUI();
+            long end = System.nanoTime();
+            long duration = end - start;
+            totalMinimaxTime += duration;
+            updateUI(duration, -1);
             requestFocusInWindow();
         });
 
         JButton m10alphaBetaButton = new JButton("m10AlphaBeta");
         m10alphaBetaButton.addActionListener(e -> {
+            long start = System.nanoTime();
             board.m10ABprune();
-            updateUI();
+            long end = System.nanoTime();
+            long duration = end - start;
+            totalAlphaBetaTime += duration;
+            updateUI(-1, duration);
             requestFocusInWindow();
         });
 
@@ -139,35 +157,49 @@ public class GameFrame extends JFrame {
             case KeyEvent.VK_D:
             case KeyEvent.VK_RIGHT: board.moveRight(); moved = true; break;
         }
-
-        if (moved) {
-            updateUI();
-        }
+        if (moved) updateUI();
     }
 
     private void updateUI() {
-        // Update score
-        int score = 0;
-        for (int r = 0; r < 4; r++)
-            for (int c = 0; c < 4; c++)
-                score += board.getValueAt(r, c);
-        scoreLabel.setText("Score: " + score);
-        highestTileLabel.setText("Highest Tile: " + board.getHighestTile());
+        updateUI(-1, -1); // no specific AI move, just refresh all labels
+    }
 
-        // Update AI timing label
-        long minimaxMs = board.getMinimaxTime() / 1_000_000;
-        long alphaBetaMs = board.getAlphaBetaTime() / 1_000_000;
-        aiTimingLabel.setText("Minimax: " + minimaxMs + " ms | Alpha-Beta: " + alphaBetaMs + " ms");
+    private void updateUI(long lastMinimax, long lastAlphaBeta) {
+        // Score
+        int score = 0;
+        int highest = 0;
+        for (int r = 0; r < 4; r++) {
+            for (int c = 0; c < 4; c++) {
+                int val = board.getValueAt(r, c);
+                score += val;
+                if (val > highest) highest = val;
+            }
+        }
+        scoreLabel.setText("Score: " + score);
+        highestTileLabel.setText("Highest Tile: " + highest);
+
+        // Current AI move time
+        if (lastMinimax >= 0) {
+            aiTimingLabel.setText("Minimax: " + lastMinimax / 1_000_000 + " ms | Alpha-Beta: 0 ms");
+        } else if (lastAlphaBeta >= 0) {
+            aiTimingLabel.setText("Minimax: 0 ms | Alpha-Beta: " + lastAlphaBeta / 1_000_000 + " ms");
+        } else {
+            aiTimingLabel.setText("Minimax: 0 ms | Alpha-Beta: 0 ms");
+        }
+
+        // Total AI time
+        totalMinimaxTimeLabel.setText("Total Minimax Time: " + totalMinimaxTime / 1_000_000 + " ms");
+        totalAlphaBetaTimeLabel.setText("Total Alpha-Beta Time: " + totalAlphaBetaTime / 1_000_000 + " ms");
 
         boardPanel.repaint();
-
         checkGameOver();
     }
 
     private void checkGameOver() {
         if (board.isGameOver()) {
-            JOptionPane.showMessageDialog(this, "Game Over! Final Score: " +
-                    calculateScore());
+            JOptionPane.showMessageDialog(this,
+                    "Game Over!\nFinal Score: " + calculateScore() +
+                    "\nHighest Tile: " + getHighestTile());
         }
     }
 
@@ -177,6 +209,15 @@ public class GameFrame extends JFrame {
             for (int c = 0; c < 4; c++)
                 score += board.getValueAt(r, c);
         return score;
+    }
+
+    private int getHighestTile() {
+        int highest = 0;
+        for (int r = 0; r < 4; r++)
+            for (int c = 0; c < 4; c++)
+                if (board.getValueAt(r, c) > highest)
+                    highest = board.getValueAt(r, c);
+        return highest;
     }
 
     public static void main(String[] args) {
