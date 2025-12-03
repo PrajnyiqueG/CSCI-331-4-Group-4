@@ -19,7 +19,7 @@ public class GameFrame extends JFrame {
     private long totalMinimaxTime = 0;
     private long totalAlphaBetaTime = 0;
 
-    private final int MIN_WIDTH = 800;
+    private final int MIN_WIDTH = 1000;
     private final int MIN_HEIGHT = 650;
 
     public GameFrame() {
