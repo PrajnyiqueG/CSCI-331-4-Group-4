@@ -7,7 +7,7 @@ public class Board {
     private static final int BOARD_SIZE = 4;
     private int[][] board;
     private Random r;
-    private static final int SEARCH_DEPTH = 7; // change to 8 if you want deeper search (slower)
+    private static final int SEARCH_DEPTH = 7;
 
     public Board() {
         this.r = new Random();
@@ -339,7 +339,7 @@ public class Board {
             return value;
         }
     }
-    
+
     private int[][] cloneGrid(int[][] g) {
         int[][] copy = new int[BOARD_SIZE][BOARD_SIZE];
         for (int i = 0; i < BOARD_SIZE; i++) {
@@ -466,7 +466,7 @@ public class Board {
         return changed;
     }
 
-    private double evaluateGrid(int[][] g) {
+    public double evaluateGrid(int[][] g) {
         double sum = 0.0;
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
@@ -493,5 +493,17 @@ public class Board {
             }
         }
         return true;
+    }
+
+    public void m10MiniMax() {
+        for(int i = 0; i < 10; i++) {
+            MiniMax();
+        }
+    }
+
+    public void m10ABprune() {
+        for(int i = 0; i < 10; i++) {
+            ABprune();
+        }
     }
 }

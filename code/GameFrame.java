@@ -63,9 +63,27 @@ public class GameFrame extends JFrame {
             requestFocusInWindow();
         });
 
+        JButton m10minimaxButton = new JButton("m10minimaxButton");
+        m10minimaxButton.addActionListener(e -> {
+            board.m10MiniMax();
+            boardPanel.repaint();
+            checkGameOver();
+            requestFocusInWindow();
+        });
+        
+        JButton m10alphaBetaButton = new JButton("m10alphaBetaButton");
+        m10alphaBetaButton.addActionListener(e -> {
+            board.m10ABprune();
+            boardPanel.repaint();
+            checkGameOver();
+            requestFocusInWindow();
+        });
+
         panel.add(newGameButton);
         panel.add(minimaxButton);
         panel.add(alphaBetaButton);
+        panel.add(m10minimaxButton);
+        panel.add(m10alphaBetaButton);
         return panel;
     }
 
