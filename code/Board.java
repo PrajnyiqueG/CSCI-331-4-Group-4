@@ -408,6 +408,19 @@ public class Board {
         return true;
     }
 
+    public int getHighestTile() {
+        int max = 0;
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                if (board[i][j] > max) {
+                    max = board[i][j];
+                }
+            }
+        }
+        return max;
+    }
+
+
     public void m10MiniMax() {
         long start = System.nanoTime();
 

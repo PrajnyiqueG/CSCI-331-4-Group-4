@@ -11,6 +11,7 @@ public class GameFrame extends JFrame {
     private BoardPanel boardPanel;
     private JLabel scoreLabel;
     private JLabel aiTimingLabel;
+    private JLabel highestTileLabel;
 
     private final int MIN_WIDTH = 700;
     private final int MIN_HEIGHT = 650;
@@ -26,6 +27,10 @@ public class GameFrame extends JFrame {
         scoreLabel = new JLabel("Score: 0", SwingConstants.CENTER);
         scoreLabel.setFont(new Font("Arial", Font.BOLD, 24));
         scoreLabel.setForeground(new Color(0x776E65));
+        
+        highestTileLabel = new JLabel("Highest Tile: 0", SwingConstants.CENTER);
+        highestTileLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        highestTileLabel.setForeground(new Color(0x776E65));
 
         // AI timing label
         aiTimingLabel = new JLabel("Minimax: 0 ms | Alpha-Beta: 0 ms", SwingConstants.CENTER);
@@ -36,9 +41,10 @@ public class GameFrame extends JFrame {
         JPanel controlPanel = createControlPanel();
 
         // Top panel (score + AI timing)
-        JPanel topPanel = new JPanel(new GridLayout(2, 1));
+        JPanel topPanel = new JPanel(new GridLayout(3, 1));
         topPanel.add(scoreLabel);
         topPanel.add(aiTimingLabel);
+        topPanel.add(highestTileLabel);
 
         // Layout setup
         setLayout(new BorderLayout());
@@ -146,6 +152,7 @@ public class GameFrame extends JFrame {
             for (int c = 0; c < 4; c++)
                 score += board.getValueAt(r, c);
         scoreLabel.setText("Score: " + score);
+        highestTileLabel.setText("Highest Tile: " + board.getHighestTile());
 
         // Update AI timing label
         long minimaxMs = board.getMinimaxTime() / 1_000_000;
