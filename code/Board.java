@@ -15,85 +15,6 @@ public class Board {
         clearBoard();
     }
 
-    public void play() {
-        generateRandomTile();
-        generateRandomTile();
-        display();
-        System.out.println();
-
-        Scanner scanner = new Scanner(System.in);
-        String input = "";
-        while (!input.equals("Q")) {
-            input = scanner.next().toUpperCase();
-            switch (input) {
-                case "W":
-                    moveUp();
-                    break;
-                case "A":
-                    moveLeft();
-                    break;
-                case "S":
-                    moveDown();
-                    break;
-                case "D":
-                    moveRight();
-                    break;
-                case "Q":
-                    System.exit(0);
-                    break;
-                case "AI1":
-                    // Plain Minimax (no pruning)
-                    String move1 = MiniMax();
-                    System.out.println("MiniMax chose: " + move1);
-                    break;
-                case "AI2":
-                    // Minimax with alpha-beta pruning
-                    String move2 = ABprune();
-                    System.out.println("ABprune chose: " + move2);
-                    break;
-                default:
-                    System.out.println("Invalid input. Please try again.");
-            }
-            display();
-
-            System.out.println();
-            System.out.println();
-
-            if (hasWon()) {
-                System.out.println("Congrats! You won!");
-                scanner.close();
-                break;
-            }
-            if (isGameOver()) {
-                System.out.println("Game over! No moves left.");
-                scanner.close();
-                break;
-            }
-        }
-    }
-
-    private boolean hasWon() {
-        for (int row = 0; row < BOARD_SIZE; row++) {
-            for (int col = 0; col < BOARD_SIZE; col++) {
-                if (board[row][col] == 2048) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private void display() {
-        System.out.println("-----------------------------");
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
-                System.out.printf("| %-4d ", board[i][j]);
-            }
-            System.out.println("|");
-            System.out.println("-----------------------------");
-        }
-    }
-
     public void moveUp() {
         if (moveGridInPlace(board, "W")) generateRandomTile();
     }
@@ -110,7 +31,6 @@ public class Board {
         if (moveGridInPlace(board, "S")) generateRandomTile();
     }
 
-    // Note: generateRandomTile still used only for real moves (not for simulation)
     private void generateRandomTile() {
         ArrayList<int[]> empty = emptyCellsGrid(board);
         if (empty.isEmpty()) {
@@ -118,10 +38,6 @@ public class Board {
         }
         int[] index = empty.get(r.nextInt(empty.size()));
         board[index[0]][index[1]] = (r.nextInt(2) + 1) * 2;
-    }
-
-    private ArrayList<int[]> emptyCells() {
-        return emptyCellsGrid(this.board);
     }
 
     private ArrayList<int[]> emptyCellsGrid(int[][] g) {
