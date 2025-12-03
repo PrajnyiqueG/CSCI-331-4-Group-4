@@ -6,11 +6,11 @@ import java.awt.*;
 public class BoardPanel extends JPanel {
 
     private Board board;
-    private static final int GRID_SIZE = 4; // 4x4 board
+    private static final int GRID_SIZE = 4;
 
     public BoardPanel(Board board) {
         this.board = board;
-        setBackground(new Color(0xBBADA0)); // Board background
+        setBackground(new Color(0xBBADA0));
     }
 
     public void setBoard(Board board) {
@@ -30,24 +30,27 @@ public class BoardPanel extends JPanel {
         int panelWidth = getWidth();
         int panelHeight = getHeight();
 
-        // Calculate tile size and gap dynamically
         int gap = Math.max(5, panelWidth / 80);
         int tileSize = (Math.min(panelWidth, panelHeight) - (GRID_SIZE + 1) * gap) / GRID_SIZE;
 
+        int boardWidth = GRID_SIZE * tileSize + (GRID_SIZE + 1) * gap;
+        int boardHeight = GRID_SIZE * tileSize + (GRID_SIZE + 1) * gap;
+
+        int xOffset = (panelWidth - boardWidth) / 2;
+        int yOffset = (panelHeight - boardHeight) / 2;
+
         for (int row = 0; row < GRID_SIZE; row++) {
             for (int col = 0; col < GRID_SIZE; col++) {
-                int x = gap + col * (tileSize + gap);
-                int y = gap + row * (tileSize + gap);
+                int x = xOffset + gap + col * (tileSize + gap);
+                int y = yOffset + gap + row * (tileSize + gap);
                 int value = board.getValueAt(row, col);
 
-                // Draw tile background with rounded corners
                 g2.setColor(getTileColor(value));
-                g2.fillRoundRect(x, y, tileSize, tileSize, 15, 15);
+                g2.fillRoundRect(x, y, tileSize, tileSize, 20, 20);
 
-                // Draw tile number
                 if (value != 0) {
                     g2.setColor(value <= 4 ? new Color(0x776E65) : Color.WHITE);
-                    int fontSize = Math.max(tileSize / 3, 14);
+                    int fontSize = Math.max(tileSize / 3, 18);
                     g2.setFont(new Font("Arial", Font.BOLD, fontSize));
 
                     String text = String.valueOf(value);
@@ -77,7 +80,7 @@ public class BoardPanel extends JPanel {
             case 512: return new Color(0xEDC850);
             case 1024: return new Color(0xEDC53F);
             case 2048: return new Color(0xEDC22E);
-            default: return new Color(0x3C3A32); // For numbers > 2048
+            default: return new Color(0x3C3A32);
         }
     }
 }
