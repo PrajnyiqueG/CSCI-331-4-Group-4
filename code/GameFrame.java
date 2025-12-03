@@ -10,29 +10,45 @@ public class GameFrame extends JFrame {
     private Board board;
     private BoardPanel boardPanel;
     private JLabel scoreLabel;
+    private JLabel aiTimingLabel;
+
+    private final int MIN_WIDTH = 700;
+    private final int MIN_HEIGHT = 650;
 
     public GameFrame() {
         board = new Board();
         board.startNewGame();
 
         boardPanel = new BoardPanel(board);
+        boardPanel.setPreferredSize(new Dimension(400, 400));
 
         // Score label
         scoreLabel = new JLabel("Score: 0", SwingConstants.CENTER);
         scoreLabel.setFont(new Font("Arial", Font.BOLD, 24));
         scoreLabel.setForeground(new Color(0x776E65));
 
-        // Control panel with buttons
+        // AI timing label
+        aiTimingLabel = new JLabel("Minimax: 0 ms | Alpha-Beta: 0 ms", SwingConstants.CENTER);
+        aiTimingLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        aiTimingLabel.setForeground(new Color(0x776E65));
+
+        // Control panel
         JPanel controlPanel = createControlPanel();
+
+        // Top panel (score + AI timing)
+        JPanel topPanel = new JPanel(new GridLayout(2, 1));
+        topPanel.add(scoreLabel);
+        topPanel.add(aiTimingLabel);
 
         // Layout setup
         setLayout(new BorderLayout());
-        add(scoreLabel, BorderLayout.NORTH);
+        add(topPanel, BorderLayout.NORTH);
         add(boardPanel, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.SOUTH);
 
         setTitle("2048 AI Project");
-        setSize(600, 700);
+        setSize(700, 750);
+        setMinimumSize(new Dimension(MIN_WIDTH, MIN_HEIGHT));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -56,20 +72,28 @@ public class GameFrame extends JFrame {
         JButton newGameButton = new JButton("New Game");
         newGameButton.addActionListener(e -> {
             board.startNewGame();
+            board.setMinimaxTime(0);    // reset timings
+            board.setAlphaBetaTime(0);
             updateUI();
             requestFocusInWindow();
         });
 
         JButton minimaxButton = new JButton("AI Move (Minimax)");
         minimaxButton.addActionListener(e -> {
+            long start = System.nanoTime();
             board.MiniMax();
+            long end = System.nanoTime();
+            board.setMinimaxTime(end - start); // update minimax time
             updateUI();
             requestFocusInWindow();
         });
 
         JButton alphaBetaButton = new JButton("AI Move (Alpha-Beta)");
         alphaBetaButton.addActionListener(e -> {
+            long start = System.nanoTime();
             board.ABprune();
+            long end = System.nanoTime();
+            board.setAlphaBetaTime(end - start); // update alpha-beta time
             updateUI();
             requestFocusInWindow();
         });
@@ -123,13 +147,29 @@ public class GameFrame extends JFrame {
                 score += board.getValueAt(r, c);
         scoreLabel.setText("Score: " + score);
 
-        // Repaint board
+        // Update AI timing label
+        long minimaxMs = board.getMinimaxTime() / 1_000_000;
+        long alphaBetaMs = board.getAlphaBetaTime() / 1_000_000;
+        aiTimingLabel.setText("Minimax: " + minimaxMs + " ms | Alpha-Beta: " + alphaBetaMs + " ms");
+
         boardPanel.repaint();
 
-        // Check game over
+        checkGameOver();
+    }
+
+    private void checkGameOver() {
         if (board.isGameOver()) {
-            JOptionPane.showMessageDialog(this, "Game Over! Final Score: " + score);
+            JOptionPane.showMessageDialog(this, "Game Over! Final Score: " +
+                    calculateScore());
         }
+    }
+
+    private int calculateScore() {
+        int score = 0;
+        for (int r = 0; r < 4; r++)
+            for (int c = 0; c < 4; c++)
+                score += board.getValueAt(r, c);
+        return score;
     }
 
     public static void main(String[] args) {

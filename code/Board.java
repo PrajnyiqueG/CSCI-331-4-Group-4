@@ -437,4 +437,12 @@ public class Board {
     public long getAlphaBetaTime() {
         return alphaBetaTime;
     }
+
+    public void setMinimaxTime(long time) {
+        this.minimaxTime = time;
+    }
+
+    public void setAlphaBetaTime(long time) {
+        this.alphaBetaTime = time;
+    }
 }
